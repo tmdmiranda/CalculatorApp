@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.calculator.ui.theme.CalculatorTheme
+import com.example.calculator.ui.theme.Orange
 import com.example.calculator.ui.theme.Pink40
 import com.example.calculator.ui.theme.PurpleGrey40
 
@@ -28,7 +29,7 @@ fun CalcButton(
             .aspectRatio(1f)
             .padding(4.dp),
         colors = if (isOperation)
-            ButtonDefaults.run { buttonColors(Pink40) }
+            ButtonDefaults.run { buttonColors(Orange) }
         else
             ButtonDefaults.run { buttonColors(PurpleGrey40) },
         onClick = {
