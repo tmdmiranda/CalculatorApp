@@ -31,16 +31,68 @@ import com.example.calculator.ui.theme.components.CalcButton
 
 @Composable
 fun CalcScreen(modifier: Modifier = Modifier) {
-
-
     var displayText by remember { mutableStateOf("0") }
-    val onNumPressed : (String) -> Unit = { num ->
-        if (displayText == "0") {
-            displayText = num
-        }else{
-            displayText += num
+    var operand by remember { mutableStateOf(0.0) }
+    var operator by remember { mutableStateOf("") }
+
+
+    var userIsInTheMiddleOfIntroducing by remember { mutableStateOf(true) }
+
+
+    fun setDisplay(value: Double)
+    {
+        if (value %1 == 0.0)
+        {
+            displayText = value.toInt().toString()
+        }
+        else
+        {
+            displayText = value.toString()
         }
     }
+
+    val onNumPressed: (String) -> Unit = { num ->
+        if (userIsInTheMiddleOfIntroducing) {
+            if (displayText == "0") {
+                if (num == ".") {
+                    displayText = "0."
+                } else {
+                    displayText = num
+                }
+            } else {
+                if (num == ".") { //Verifica se a tecla pressionada é a do ponto
+                    if (!displayText.contains('.')) { //Verifica se já existe um ponte
+                        displayText += num
+                    }
+                } else {
+                    displayText += num
+                }
+            }
+        }
+        else{
+            displayText = num
+        }
+        userIsInTheMiddleOfIntroducing = true
+    }
+
+
+
+    val onOpPressed: (String) -> Unit = { op ->
+        if (operator.isNotEmpty()) {
+            when (operator) {
+                "+" -> operand += displayText.toDouble()
+                "-" -> operand -= displayText.toDouble()
+                "x" -> operand *= displayText.toDouble()
+                "/" -> operand /= displayText.toDouble()
+                "=" -> operator= ""
+            }
+            setDisplay(operand)
+        }
+        operand = displayText.toDouble()
+        operator = op
+        userIsInTheMiddleOfIntroducing = false
+    }
+
 
     Column(modifier = modifier) {
         Text(text = displayText,
@@ -58,7 +110,7 @@ fun CalcScreen(modifier: Modifier = Modifier) {
 
 
         ){
-            CalcButton(modifier = modifier.size(100.dp,100.dp), "C", true, onClick = {displayText = "0"})
+            CalcButton(modifier = modifier.size(100.dp,100.dp), "C", true, onClick = {displayText = "0"; operand = 0.0; operator = ""})
 
 
         }
@@ -72,7 +124,7 @@ fun CalcScreen(modifier: Modifier = Modifier) {
             CalcButton(modifier = modifier.weight(1f), "7", onClick = onNumPressed)
             CalcButton(modifier = modifier.weight(1f), "8", onClick = onNumPressed)
             CalcButton(modifier = modifier.weight(1f), "9", onClick = onNumPressed)
-            CalcButton(modifier = modifier.weight(1f), "x", isOperation = true, onClick = {})
+            CalcButton(modifier = modifier.weight(1f), "x", isOperation = true, onClick = onOpPressed)
         }
         Row(
             modifier = modifier
@@ -82,7 +134,7 @@ fun CalcScreen(modifier: Modifier = Modifier) {
             CalcButton(modifier = modifier.weight(1f), "4", onClick = onNumPressed)
             CalcButton(modifier = modifier.weight(1f), "5", onClick = onNumPressed)
             CalcButton(modifier = modifier.weight(1f), "6", onClick = onNumPressed)
-            CalcButton(modifier = modifier.weight(1f), "+", isOperation = true, onClick = {})
+            CalcButton(modifier = modifier.weight(1f), "+", isOperation = true, onClick = onOpPressed)
         }
         Row(
             modifier = modifier
@@ -92,7 +144,7 @@ fun CalcScreen(modifier: Modifier = Modifier) {
             CalcButton(modifier = modifier.weight(1f), "1", onClick = onNumPressed)
             CalcButton(modifier = modifier.weight(1f), "2", onClick = onNumPressed)
             CalcButton(modifier = modifier.weight(1f), "3", onClick = onNumPressed)
-            CalcButton(modifier = modifier.weight(1f), "-", isOperation = true, onClick = {})
+            CalcButton(modifier = modifier.weight(1f), "-", isOperation = true, onClick = onOpPressed)
 
         }
         Row(
@@ -101,10 +153,10 @@ fun CalcScreen(modifier: Modifier = Modifier) {
 
         )
         {
-            CalcButton(modifier = modifier.weight(1f), "=", true, onClick = {})
+            CalcButton(modifier = modifier.weight(1f), "=", true, onClick = onOpPressed)
             CalcButton(modifier = modifier.weight(1f), "0", onClick = onNumPressed)
-            CalcButton(modifier = modifier.weight(1f), ".", true, onClick = {/*TODO*/ })
-            CalcButton(modifier = modifier.weight(1f), "/", isOperation = true, onClick = {})
+            CalcButton(modifier = modifier.weight(1f), ".", true, onClick = onNumPressed)
+            CalcButton(modifier = modifier.weight(1f), "/", isOperation = true, onClick = onOpPressed)
 
         }
 
