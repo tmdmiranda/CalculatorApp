@@ -11,7 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.newsapp.ui.HomeView
 import com.example.newsapp.theme.NewsAppTheme
+import com.example.newsapp.ui.ArticleDetail
+import com.example.newsapp.ui.HomeView
+import com.example.newsapp.ui.HomeViewPreview
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,28 +26,35 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NewsAppTheme {
+                var navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeView(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    NavHost(navController = navController,
+                        startDestination = Screen.Home.route ) {
+                        composable(route = Screen.Home.route) {
+                            HomeView(
+                                navController = navController,
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                        composable(route = Screen.ArticleDetail.route)
+                        {
+                            val url = it.arguments?.getString("articleUrl")
+                            ArticleDetail(
+                                modifier = Modifier.padding(innerPadding),
+                                url = url ?: ""
+                            )
+                        }
+                    }
+
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+sealed class Screen(val route: String) {
+    object Home : Screen("home")
+    object ArticleDetail : Screen("article_Detail/{articleUrl}")
+
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    NewsAppTheme {
-        Greeting("Android")
-    }
-}
