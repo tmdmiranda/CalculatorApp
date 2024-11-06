@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "671018788607",
+    "project_id": "androidchigga",
+    "storage_bucket": "androidchigga.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671018788607:android:5c5fc461a8f8de53cdceca",
+        "android_client_info": {
+          "package_name": "com.example.newsapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBx7WnjkjUreyBR7SF77dmXCj0YPAu1b38"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
