@@ -5,6 +5,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.SurfaceHolder
@@ -22,11 +24,15 @@ class GameView : SurfaceView, Runnable {
     var enemies = arrayListOf<Enemy>()
     lateinit var player : Player
     lateinit var boom : Boom
-
+    lateinit var collisionBox : Rect
+    var failCount : Int = 0
+    var lives : Int = 1
+    var onGameOver : () -> Unit = {}
     private fun init(context: Context, width: Int, height: Int){
 
         surfaceHolder = holder
         paint = Paint()
+        collisionBox = Rect(10, 0, 0, height)
 
         for (i in 0..100){
             stars.add(Star(width, height))
@@ -61,10 +67,10 @@ class GameView : SurfaceView, Runnable {
         gameThread?.start()
     }
 
-    fun pause() {
-        playing = false
-        gameThread?.join()
-    }
+    //fun pause() {
+    //    playing = false
+    //    gameThread?.join()
+    //}
 
     override fun run() {
         while (playing){
@@ -93,6 +99,15 @@ class GameView : SurfaceView, Runnable {
 
                 e.x = -300
             }
+            if (Rect.intersects(collisionBox, e.detectCollision))
+            {
+                failCount++
+                if(failCount == 5)
+                {
+                    lives = 0
+                }
+                e.x = -300
+            }
 
         }
         player.speed = 1 + killCount / 3
@@ -109,8 +124,6 @@ class GameView : SurfaceView, Runnable {
 
             paint.color = Color.YELLOW
 
-
-
             for (star in stars) {
                 paint.strokeWidth = star.starWidth.toFloat()
                 canvas.drawPoint(star.x.toFloat(), star.y.toFloat(), paint)
@@ -124,19 +137,34 @@ class GameView : SurfaceView, Runnable {
             canvas.drawBitmap(boom.bitmap, boom.x.toFloat(), boom.y.toFloat(), paint)
 
 
+
+            paint.textSize = 42f
+            canvas.drawText("Lives: $lives", 10f, 100f, paint)
+
             surfaceHolder.unlockCanvasAndPost(canvas)
         }
     }
-
+    var callGameOverOnce = false
     fun control(){
         Thread.sleep(17)
+        if (lives == 0 ){
+            playing = false
+            Handler(Looper.getMainLooper()).post {
+                if (!callGameOverOnce) {
+                    onGameOver()
+                    callGameOverOnce = true
+                }
+                gameThread?.join()
+            }
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                val touchY = event.y
+                val touchY = event.y - 100
                 player.updatePosition(touchY)
+
 
             }
             MotionEvent.ACTION_UP -> {
