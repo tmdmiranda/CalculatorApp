@@ -17,30 +17,36 @@ import org.json.JSONObject
 import java.io.IOException
 
 
-data class ArticlesState(
-    var articles: ArrayList<Article> = arrayListOf(),
-    var isLoading: Boolean = false,
-    var error: String? = null
+
+data class ArticlesState (
+    val articles: ArrayList<Article> = arrayListOf(),
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
 
 class HomeViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(ArticlesState())
-    val uiState: StateFlow<ArticlesState> = _uiState.asStateFlow()
+    val uiState : StateFlow<ArticlesState> = _uiState.asStateFlow()
 
     fun fetchArticles() {
-        _uiState.value = ArticlesState(isLoading = true, error = null)
+
+        _uiState.value = ArticlesState(
+            isLoading = true,
+            error = null)
 
         val client = OkHttpClient()
 
         val request = Request.Builder()
-            .url("https://newsapi.org/v2/everything?q=tesla&from=2024-09-16&sortBy=publishedAt&apiKey=54a3c2c292ae4ff1a120f30b2e0e0abd")
+            .url("https://newsapi.org/v2/everything?q=tesla&from=2024-09-23&sortBy=publishedAt&apiKey=54a3c2c292ae4ff1a120f30b2e0e0abd")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
-                _uiState.value = ArticlesState(isLoading = true, error = null)
+                _uiState.value = ArticlesState(
+                    isLoading = true,
+                    error = e.message)
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -58,11 +64,14 @@ class HomeViewModel : ViewModel() {
                             articlesResult.add(article)
                         }
                     }
-                    _uiState.value =
-                        ArticlesState(articles = articlesResult, isLoading = true, error = null)
+                    _uiState.value = ArticlesState(
+                        articles = articlesResult,
+                        isLoading = false,
+                        error = null)
                 }
             }
         })
     }
+
 }
 
